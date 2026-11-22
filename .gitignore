@@ -35,6 +35,5 @@ build/
 ### Segredos e artefatos locais (NÃO versionar) ###
 .env
 data/
-*.p12
 *.jks
 *.pem
