@@ -1,0 +1,47 @@
+spring:
+  config:
+    # Lê o arquivo .env (NÃO versionado) se existir. Veja .env.example
+    import: optional:file:.env[.properties]
+  datasource:
+    url: jdbc:h2:file:${OIDC_DB_PATH:./data/authdb}
+    username: sa
+    password: ${AUTH_DB_PASSWORD}
+  sql:
+    init:
+      mode: always            # executa schema.sql (CREATE TABLE IF NOT EXISTS)
+  ssl:
+    bundle:
+      jks:
+        web:
+          keystore:
+            location: ${AUTH_KEYSTORE:file:./certs/auth-server.p12}
+            password: ${AUTH_KEYSTORE_PASSWORD}
+            type: PKCS12
+
+server:
+  port: 9000
+  ssl:
+    bundle: web
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        name: AUTH_SESSION_ID
+        http-only: true
+        secure: true
+        same-site: lax
+        path: /
+
+oidc:
+  issuer: ${OIDC_ISSUER:https://localhost:9000}
+  client-id: ${OIDC_CLIENT_ID}
+  client-secret: ${OIDC_CLIENT_SECRET}
+  redirect-uri: ${OIDC_REDIRECT_URI:https://localhost:8443/callback}
+  signing-key-file: ${OIDC_SIGNING_KEY_FILE:./data/signing-key.json}
+  key-rotation-minutes: ${OIDC_KEY_ROTATION_MINUTES:1440}
+  seed-admin-password: ${SEED_ADMIN_PASSWORD}
+  seed-user-password: ${SEED_USER_PASSWORD}
+  post-logout-redirect-uri: ${OIDC_POST_LOGOUT_REDIRECT_URI:https://localhost:8443/login?logout=true}
+  app-login-url: ${OIDC_APP_LOGIN_URL:https://localhost:8443/login}
+  client-grant-types: authorization_code
+  bootstrap-admins: ${OIDC_BOOTSTRAP_ADMINS:}      # ex.: maria,joao (usernames já cadastrados)

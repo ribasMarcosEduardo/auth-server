@@ -1,0 +1,350 @@
+{
+  "info": {
+    "name": "Auth Server OIDC (A1/3 Cyber Security)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "auth_url",
+      "value": "https://localhost:9000"
+    },
+    {
+      "key": "client_id",
+      "value": "ong-adocao-client"
+    },
+    {
+      "key": "client_secret",
+      "value": "<do .env>"
+    },
+    {
+      "key": "redirect_uri",
+      "value": "https://localhost:8443/callback"
+    },
+    {
+      "key": "code_verifier",
+      "value": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+    },
+    {
+      "key": "code_challenge",
+      "value": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+    },
+    {
+      "key": "code",
+      "value": ""
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Discovery",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_url}}/.well-known/openid-configuration",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            ".well-known",
+            "openid-configuration"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. JWKS",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_url}}/jwks.json",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "jwks.json"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Authorize (abrir no navegador)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_url}}/authorize?response_type=code&client_id={{client_id}}&redirect_uri={{redirect_uri}}&scope=openid profile email&state=estado-aleatorio-123&nonce=nonce-aleatorio-456&code_challenge={{code_challenge}}&code_challenge_method=S256",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "authorize"
+          ],
+          "query": [
+            {
+              "key": "response_type",
+              "value": "code"
+            },
+            {
+              "key": "client_id",
+              "value": "{{client_id}}"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "{{redirect_uri}}"
+            },
+            {
+              "key": "scope",
+              "value": "openid profile email"
+            },
+            {
+              "key": "state",
+              "value": "estado-aleatorio-123"
+            },
+            {
+              "key": "nonce",
+              "value": "nonce-aleatorio-456"
+            },
+            {
+              "key": "code_challenge",
+              "value": "{{code_challenge}}"
+            },
+            {
+              "key": "code_challenge_method",
+              "value": "S256"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "3b. Authorize com redirect_uri inválido (espera 400, sem redirect)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_url}}/authorize?response_type=code&client_id={{client_id}}&redirect_uri={{redirect_uri}}/&scope=openid&state=s&nonce=n&code_challenge={{code_challenge}}&code_challenge_method=S256",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "authorize"
+          ],
+          "query": [
+            {
+              "key": "response_type",
+              "value": "code"
+            },
+            {
+              "key": "client_id",
+              "value": "{{client_id}}"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "{{redirect_uri}}/"
+            },
+            {
+              "key": "scope",
+              "value": "openid"
+            },
+            {
+              "key": "state",
+              "value": "s"
+            },
+            {
+              "key": "nonce",
+              "value": "n"
+            },
+            {
+              "key": "code_challenge",
+              "value": "{{code_challenge}}"
+            },
+            {
+              "key": "code_challenge_method",
+              "value": "S256"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Token (client_secret_post)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{auth_url}}/token",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "token"
+          ]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "key": "code",
+              "value": "{{code}}"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "{{redirect_uri}}"
+            },
+            {
+              "key": "code_verifier",
+              "value": "{{code_verifier}}"
+            },
+            {
+              "key": "client_id",
+              "value": "{{client_id}}"
+            },
+            {
+              "key": "client_secret",
+              "value": "{{client_secret}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "4b. Token com code_verifier errado (espera invalid_grant)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{auth_url}}/token",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "token"
+          ]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "key": "code",
+              "value": "{{code}}"
+            },
+            {
+              "key": "redirect_uri",
+              "value": "{{redirect_uri}}"
+            },
+            {
+              "key": "code_verifier",
+              "value": "verificador-errado-verificador-errado-verificador-errado"
+            },
+            {
+              "key": "client_id",
+              "value": "{{client_id}}"
+            },
+            {
+              "key": "client_secret",
+              "value": "{{client_secret}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Userinfo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{auth_url}}/userinfo",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "userinfo"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5b. Userinfo sem token (espera 401 + WWW-Authenticate)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_url}}/userinfo",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "userinfo"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Cadastro de usuário (abrir no navegador)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_url}}/register",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "register"
+          ]
+        }
+      }
+    },
+    {
+      "name": "7. Logout no provedor (abrir no navegador)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{auth_url}}/logout?post_logout_redirect_uri=https://localhost:8443/login?logout=true",
+          "host": [
+            "{{auth_url}}"
+          ],
+          "path": [
+            "logout"
+          ],
+          "query": [
+            {
+              "key": "post_logout_redirect_uri",
+              "value": "https://localhost:8443/login?logout=true"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
