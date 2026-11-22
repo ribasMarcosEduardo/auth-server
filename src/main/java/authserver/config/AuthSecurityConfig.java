@@ -17,6 +17,7 @@ public class AuthSecurityConfig {
                 // /token e /userinfo são chamados por clientes não-navegador
                 // (autenticados por client_secret / Bearer), então ficam fora.
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/token", "/userinfo"))
+                .logout(logout -> logout.disable())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
